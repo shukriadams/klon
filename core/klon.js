@@ -13,8 +13,12 @@ var klon;
     
     'use strict';
 
-    klon = {};
-    klon.logging = false;
+    // setup global if it doesn't exist, else state will be reset each time script is read    
+    if (klon == null){
+        klon = {};
+        klon.logging = false;
+        klon.attachToWindow = true;
+    }
 
     // gets an instance
     // add optional interface as part of registration contract
