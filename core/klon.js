@@ -1,18 +1,15 @@
 /*
-
-Klon is a javascript library for handling loose coupling. It supports
-  on-demand loading of types
-  namespaces
-  interface-like contracts
-  type injection
-
-It has only one requirement : require.js
+    Klon is a javascript library for handling namespaces and loose coupling. 
+    Author : Shukri Adams (shukri.adams@gmail.com), 2013
+    Klon is available under the MIT license and can be freely distributed.
+    
+    http://github.com/shukriadams/klon
 */
 
 // this is the only global variable klon uses.
 var klon;
 
-require([], function( ){
+(function(){
     
     'use strict';
 
@@ -132,4 +129,4 @@ require([], function( ){
         console.log(message);   
     };
 
-});
+}());

@@ -1,22 +1,28 @@
 What it is :
 ------------
-Klon adds namespaces and type injection to Require.js. This lets you keep your code relatively free of logic that handles type switching. Or if you want to use switching logic, Klon takes care of all the plumbing and lets you use a single string argument as switch.
+Namespaces : Klon adds easy namespaces to javascript. Namespaces are handy for organizing code into classes which can be reused between projects.
 
-Klon leans heavily on Require's loading model, so you load things only when needed. 
+Type injection : Once you have namespaces in place, Klon adds type injection so that different class can live at a given node, keeping a common interface while performing different functions. This is useful for amongst other things, injecting test stubs into your app.
 
-Klon doesn't do anything revolutionary. You can easily do the same thing by creating a custom factory for your types. All that Klon does is remove a lot of the boilerplating normally associated with factories.
+Load what you need : Klon plays nice with Require's loading model. You can build a large namespace of interdependent classes, but load types only as needed.
+
+Klon isn't revolutionary. You can easily do these things with a little boilerplate, Klon just saves you a few lines of extra work.
+
+Current status:
+---------------
+Klon is still in alpha.
 
 
 How to use it:
-------------
-1) Scripts : Klon requires Requirejs.
+--------------
+1) Scripts : Klon doesn't require Require.js, but it's nice to have it around.
 
     <script type='text/javascript' src='require.js'></script>
     <script type='text/javascript' src='klon.js'></script>
 
 
 
-2) Create javascript classes, and hook them up to Klon with a namespace of your choosing. Klon assumes you want to work with classes in the traditional object oriented style.
+2) Create classes and hook them up to Klon with a namespace of your choosing. Klon assumes you want to work with classes in the traditional object oriented style.
 
 Let's say we have a class with a method .doSomething(), which does some work. We have a production version which does real stuff. This class lives in its own file, production.script.js.
 
