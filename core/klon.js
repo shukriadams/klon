@@ -23,20 +23,20 @@ var klon;
     // gets an instance
     // add optional interface as part of registration contract
     klon.register = function (ns, type, key) {
-        
+
         // setup up and/or get namespace 
-        ns = klon.namespace(ns);
+        var namespace = klon.namespace(ns);
 
 
         // attach types array to namespace
-        if (!ns.types){
-            ns.types = [];
+        if (!namespace.types){
+            namespace.types = [];
         }
 
 
         // check if key exists
-        for (var i = 0 ; i < ns.types.length ; i ++){
-            var typeCheck = ns.types[i];
+        for (var i = 0 ; i < namespace.types.length ; i ++){
+            var typeCheck = namespace.types[i];
             if (typeCheck.key && typeCheck.key === key){
                 throw new 'Type with key "' + key + '" already registered.';
             }
@@ -47,17 +47,17 @@ var klon;
         // attach "instance" method.
         // key : unique key type was registerd with
         // args : optional constructor args
-        if (!ns.instance){
-            ns.instance = function instance (key, args){
-                return get(ns.types, key, args, true);
+        if (!namespace.instance){
+            namespace.instance = function instance (key, args){
+                return get(namespace.types, key, args, true);
             }; 
         }
 
             
         // attach "type" method
-        if (!ns.type){
-            ns.type = function type(key){
-                return get(ns.types, key, args, false);
+        if (!namespace.type){
+            namespace.type = function type(key){
+                return get(namespace.types, key, null, false);
             }
         }
         
@@ -69,8 +69,8 @@ var klon;
                 reg.key = key;
            }
 
-            ns.types.push(reg);
-            klon.log('registered type ' + key);
+            namespace.types.push(reg);
+            klon.log('registered type at namespace ' + ns + (key?' '+key:'') );
         }
     };
 
