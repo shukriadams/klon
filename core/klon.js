@@ -49,6 +49,12 @@ var klon;
         // args : optional constructor args
         if (!namespace.instance){
             namespace.instance = function instance (key, args){
+                // "overload"
+                if (!args && typeof key === 'object' ){
+                    args = key;
+                    key = null;
+                }
+
                 return get(namespace.types, key, args, true);
             }; 
         }
@@ -90,7 +96,7 @@ var klon;
                     return type.type;
                 }
             }
-            throw 'Did not find a registerd type ' + key;
+            throw 'Did not find a registered type ' + key;
         }       
         else {
             // no key given, return default
