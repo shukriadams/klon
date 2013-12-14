@@ -5,7 +5,7 @@
     "ignore": [
         "ext",
         "libs",
-        "test",
+        "tests",
         "LICENSE",
         "README.md"
     ]
