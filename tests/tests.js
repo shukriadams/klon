@@ -4,7 +4,7 @@ module("Klon tests", {
         require.config({
             //urlArgs: urlargs,
             paths: {
-                'klon': '../core/klon',
+                'klon': '../klon',
                 'search-google': 'searchGoogle',
                 'search-lucene': 'luceneLook',
                 'klone-child': 'klon.child',
