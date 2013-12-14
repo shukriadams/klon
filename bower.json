@@ -1,0 +1,12 @@
+{
+    "name": "Klon",
+    "version": "0.0.1",
+    "main": "core/klon.js",
+    "ignore": [
+        "ext",
+        "libs",
+        "test",
+        "LICENSE",
+        "README.md"
+    ]
+}
