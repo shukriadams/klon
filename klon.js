@@ -16,8 +16,8 @@ var klon;
     // setup global if it doesn't exist, else state will be reset each time script is read    
     if (klon == null){
         klon = {};
-        klon.logging = false;
-        klon.attachToWindow = true;
+        klon.root = window;     // klon needs a global object to attach namespaces to. Override here if necessary.
+        klon.logging = false;   // true if klon should go verbose. For development.
     }
 
     // gets an instance
@@ -34,19 +34,23 @@ var klon;
         }
 
 
-        // check if key exists
-        for (var i = 0 ; i < namespace.types.length ; i ++){
-            var typeCheck = namespace.types[i];
-            if (typeCheck.key && typeCheck.key === key){
-                throw new 'Type with key "' + key + '" already registered.';
+        // remove item if it exists already
+        if (key){
+            for (var i = 0 ; i < namespace.types.length ; i ++){
+                var typeCheck = namespace.types[i];
+                if (typeCheck.key && typeCheck.key === key){
+                    namespace.types.splice(i, 1);
+                    break;
+                }
             }
         }
 
 
-
-        // attach "instance" method.
+        // Attach "instance" method which returns an instance of the type 
+        // with the requested key, or the first type at the node if no key
+        // given.
         // key : unique key type was registerd with
-        // args : optional constructor args
+        // args : optional constructor args for instance.
         if (!namespace.instance){
             namespace.instance = function instance (key, args){
                 // "overload"
@@ -60,13 +64,22 @@ var klon;
         }
 
             
-        // attach "type" method
+        // Attach "type" method which returns the type (class) with the requested
+        // key, or the first type at the node if no key is given.
         if (!namespace.type){
             namespace.type = function type(key){
                 return get(namespace.types, key, null, false);
             }
         }
-        
+
+
+        // clears all types at the node.
+        if (!namespace.clear){
+            namespace.clear = function clear(){
+                namespace.types = [];
+            }
+        }        
+
 
         // check if type exists, allows use of "register" to set up empty namespaces.
         if (type){
@@ -115,18 +128,13 @@ var klon;
             throw 'Invalid namespace, must contain at least 1 node'
         }
 
-        var built = "window";
-        var test = window;
+        var root = klon.root;
         for (var i = 0 ; i < nodes.length ; i ++){
             var node = nodes[i];
-            var script = built + "." + node + " = " + built +"." + node + " || {};";
-            eval(script);
-            built = built + "." + node;
+            root[node] = root[node] || {};
+            root = root[node];
         }
-
-        var n = null;
-        eval ("n = " + built + ";");
-        return n;
+        return root;
     };
 
 
