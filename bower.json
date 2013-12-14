@@ -7,6 +7,7 @@
         "libs",
         "tests",
         "LICENSE",
-        "README.md"
+        "README.md",
+        "bower.json"
     ]
 }
