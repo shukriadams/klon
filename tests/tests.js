@@ -72,7 +72,6 @@ test("Tests creating an instance with no registered types", function(){
 test("Tests clearing a namespace node of all types", function(){
     throws(function () {
             var type = function(){ };
-            type.prototype = function () { this.apply(this, arguments); };
             type.prototype.execute = function(){ };
             
             klon.register("foo.bar", type, "mytype");   
@@ -84,6 +83,16 @@ test("Tests clearing a namespace node of all types", function(){
     );    
 });
 
+
+test("tests instantiation of a type directly from namespace", function(){
+     // register first type
+    var type = function(){ };
+    type.prototype.execute = function(){ return 1; };
+
+    klon.register("foo.bar", type, "mytype");   
+    var instance = new foo.bar.mytype();
+    ok( instance.execute() === 1);
+});
 
 
 // tests "overload" behaviour of instance
@@ -105,7 +114,6 @@ test("tests creating an instance with no key but constructor with args", functio
 test("tests retrieving of type instead of instances", function(){
     // register first type
     var type = function(){  };
-    type.prototype = function () { this.apply(this, arguments); };
     type.prototype.execute = function(){  return 1; };
 
     klon.register("foo.bar", type, "mytype");
@@ -120,13 +128,11 @@ test( "tests registering items with the same key ", function() {
     
     // register first type
     var type1 = function(){  };
-    type1.prototype = function () { this.apply(this, arguments); };
     type1.prototype.execute = function(){  return 1; };
     klon.register("foo.bar", type1, "mytype");
 
     // register type 2 on same key
     var type2 = function(){ };
-    type2.prototype = function () { this.apply(this, arguments); };
     type2.prototype.execute = function(){ return 2; };
     klon.register("foo.bar", type2, "mytype");
 

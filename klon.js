@@ -16,7 +16,7 @@ var klon;
     // setup global if it doesn't exist, else state will be reset each time script is read    
     if (klon == null){
         klon = {};
-        klon.root = window;     // klon needs a global object to attach namespaces to. Override here if necessary.
+        klon.root = window;     // klon needs a global object to attach namespaces to. This can be override if needed.
         klon.logging = false;   // true if klon should go verbose. For development.
     }
 
@@ -79,6 +79,12 @@ var klon;
                 namespace.types = [];
             }
         }        
+
+
+        // attach type directly to namespace as node of its own, if it has a key
+        if (key){
+            namespace[key] = type;
+        }
 
 
         // check if type exists, allows use of "register" to set up empty namespaces.
