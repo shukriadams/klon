@@ -8,9 +8,15 @@ Load what you need : Klon plays nice with Require's loading model. You can build
 
 Klon isn't revolutionary. You can easily do these things with a little boilerplate, Klon just saves you a few lines of extra work.
 
+
 Current status:
 ---------------
-Klon is still in alpha.
+Current version is 0.0.2. Klon is still in alpha - it's mostly stable, but it could change.
+
+
+Bower:
+------
+Klon is available via bower as "klon".
 
 
 How to use it:
