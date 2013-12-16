@@ -99,7 +99,7 @@ We went to make a test stub of our worker class, which lives in its own file tes
 4) Use your type without worrying about which class was hooked up.
 
     require(['foobar'], function(){
-        var t = foo.bar.create();	
+        var t = foo.bar.instance();	
         t.doSomething(); // if you set up for production, returns 'you made production!'
     });	
 
@@ -108,6 +108,6 @@ We went to make a test stub of our worker class, which lives in its own file tes
 5) If you have multiple types bound at once, ask for one by name.
 
     require(['foobar'], function(){
-        var t = foo.bar.create('test');	
+        var t = foo.bar.instance('test');	
         t.doSomething(); // returns 'this was just a test'
     });	
