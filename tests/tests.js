@@ -142,6 +142,28 @@ test( "tests registering items with the same key ", function() {
 });
 
 
+test("tests clearing of types", function() {
+    // register first type
+    var type1 = function(){  };
+    type1.prototype.execute = function(){  return 1; };
+    klon.register("foo.bar", type1, "mytype");
+
+    // register type 2 on same key
+    var type2 = function(){ };
+    type2.prototype.execute = function(){ return 2; };
+    klon.register("foo.bar", type2, "mytype2");
+
+    ok(foo.bar.hasOwnProperty("mytype"));
+    ok(foo.bar.hasOwnProperty("mytype2"));
+
+    // clear
+    window.foo.bar.clear();
+
+    // test
+    ok(!foo.bar.hasOwnProperty("mytype"));
+    ok(!foo.bar.hasOwnProperty("mytype2"));
+});
+
 
 asyncTest("Tests a module that has an internal dependency on a klon namespae", function () {
 

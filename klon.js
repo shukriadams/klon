@@ -20,30 +20,15 @@ var klon;
         klon.logging = false;   // true if klon should go verbose. For development.
     }
 
+    // names of functions klon attaches to namespaces.
+    var functionNames = ["instance", "type", "clear"];
+
     // gets an instance
     // add optional interface as part of registration contract
     klon.register = function (ns, type, key) {
 
         // setup up and/or get namespace 
         var namespace = klon.namespace(ns);
-
-
-        // attach types array to namespace
-        if (!namespace.types){
-            namespace.types = [];
-        }
-
-
-        // remove item if it exists already
-        if (key){
-            for (var i = 0 ; i < namespace.types.length ; i ++){
-                var typeCheck = namespace.types[i];
-                if (typeCheck.key && typeCheck.key === key){
-                    namespace.types.splice(i, 1);
-                    break;
-                }
-            }
-        }
 
 
         // Attach "instance" method which returns an instance of the type 
@@ -59,7 +44,7 @@ var klon;
                     key = null;
                 }
 
-                return get(namespace.types, key, args, true);
+                return get(namespace, key, args, true);
             }; 
         }
 
@@ -68,62 +53,74 @@ var klon;
         // key, or the first type at the node if no key is given.
         if (!namespace.type){
             namespace.type = function type(key){
-                return get(namespace.types, key, null, false);
+                return get(namespace, key, null, false);
             }
         }
 
+        
 
         // clears all types at the node.
         if (!namespace.clear){
             namespace.clear = function clear(){
-                namespace.types = [];
+                for (var property in namespace) {
+                    if (!namespace.hasOwnProperty(property)) {
+                        continue;
+                    }
+                    
+                    if(!!~functionNames.indexOf(property)){
+                        continue;
+                    }
+
+                    delete namespace[property];
+                }                
             }
         }        
 
 
-        // attach type directly to namespace as node of its own, if it has a key
-        if (key){
-            namespace[key] = type;
-        }
-
-
-        // check if type exists, allows use of "register" to set up empty namespaces.
+        // attach property to namespace, either at key, use name "default"
         if (type){
-           var reg = { "type" : type };
-           if (key){
-                reg.key = key;
-           }
+            if (!key){
+                key = "default";
+            }
 
-            namespace.types.push(reg);
+            namespace[key] = type;
+
             klon.log('registered type at namespace ' + ns + (key?' '+key:'') );
         }
+
     };
 
 
     // gets an instance or raw type	
-    function get(types, key, args, inst){
-        if (!types || types.length === 0)
-            throw "No types registered at this namespace node.";
-
-        if (key){
-            for (var i = 0 ; i < types.length ; i ++){
-                var type = types[i];
-                if (type.key && type.key === key){
-                    if (inst){
-                        return new type.type(args);
+    function get(ns, key, args, inst){
+        if (!key){
+            if (ns.hasOwnProperty(key)){
+                key = "default";
+            } else {
+                // find first property that is not a reserve function
+                for (var property in ns) {
+                    if (!ns.hasOwnProperty(property)) {
+                        continue;
                     }
-                    return type.type;
-                }
+                    
+                    if(!!~functionNames.indexOf(property)){
+                        continue;
+                    }
+
+                    key = property;
+                    break;
+                }                 
             }
-            throw 'Did not find a registered type ' + key;
         }       
-        else {
-            // no key given, return default
-            if (inst){
-                return new types[0].type(args);
-            }
-            return types[0].type;
+
+        if(!ns.hasOwnProperty(key)){
+            throw 'Did not find a registered type ' + key;
         }
+
+        if (inst){
+            return new ns[key](args);
+        }
+        return ns[key];
     }
 
 
