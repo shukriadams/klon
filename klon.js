@@ -93,7 +93,7 @@ var klon;
 
     // gets an instance or raw type	
     function get(ns, key, args, inst){
-        if (!key){
+        if (!key){ 
             if (ns.hasOwnProperty(key)){
                 key = "default";
             } else {
