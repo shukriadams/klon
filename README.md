@@ -11,7 +11,7 @@ Klon isn't revolutionary. You can easily do these things with a little boilerpla
 
 Current status:
 ---------------
-Current version is 0.0.2. Klon is still in alpha - it's mostly stable, but it could change.
+Current version is 0.0.3. Klon is still in alpha - it's mostly stable, but it could change.
 
 
 Bower:
