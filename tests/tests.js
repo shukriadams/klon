@@ -58,13 +58,21 @@ function loadScript(url, callback)
 
 
 test("Tests creating an instance with no registered types", function(){
-    throws(function () {
-            // create empty namespace fo.ba
-            klon.register("fo.ba"); 
-            var s = window.fo.ba.instance();
-        },
-        "No types registered at this namespace node"
-    );    
+    try
+    {
+        var type = function(){ };
+        type.prototype.execute = function(){ };
+        
+        klon.register("foo.bar", type, "mytype");   
+        foo.bar.clear();
+        
+        var s = window.foo.bar.instance();
+        
+    }
+    catch(ex)
+    {
+        ok (ex.indexOf("No types registered") === 0)
+    }   
 });
 
 
@@ -84,7 +92,26 @@ test("Tests clearing a namespace node of all types", function(){
 });
 
 
+test("test function that tests if namespace exists", function(){
+    
+    // empty namespace
+    klon.register("foo.bar");   
+    ok(klon.exists("foo.bar"));
+
+    // namespace with type
+    var type = function(){ };
+    type.prototype.execute = function(){ return 1; };
+
+    klon.register("foo2.bar2", type, "mytype");   
+    ok(klon.exists("foo2.bar2"));
+
+    // invalid namespace
+    ok(!klon.exists("foo3.bar3"));
+});
+
+
 test("tests instantiation of a type directly from namespace", function(){
+
      // register first type
     var type = function(){ };
     type.prototype.execute = function(){ return 1; };

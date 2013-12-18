@@ -1,5 +1,28 @@
 /*
-    Klon is a javascript library for handling namespaces and loose coupling. 
+    Klon is a javascript library for creating and working with namespaces. It has no dependencies.
+    
+    Use klon to create a global namespace like window.my.long.foo.bar.namespace from 
+    the string "window.my.long.foo.bar.namespace". Klon will also attach a function
+
+        var mytype = function(){}; 
+
+    to that namespace, giving you 
+        window.my.long.foo.bar.namespace.myType;
+    
+
+    Klon lets you affix multiple types to one namespace, or overwrite an existing type.
+        var myInstance = new window.my.long.foo.bar.namespace.myType();
+        var myOtherInstance = new window.my.long.foo.bar.namespace.myOtherType();
+
+
+    Klon also lets you create an instance without knowing the type
+        var myInstance = window.my.long.foo.bar.namespace.instance();
+    
+    In this way it allows you to achieve some degree of loose coupling, as you can bind
+    different types with the same interface to a predetermined namespace, and then get
+    an instance back without having to know which concrete type you're getting.
+
+
     Author : Shukri Adams (shukri.adams@gmail.com), 2013
     Klon is available under the MIT license and can be freely distributed.
     
@@ -20,8 +43,32 @@ var klon;
         klon.logging = false;   // true if klon should go verbose. For development.
     }
 
+
     // names of functions klon attaches to namespaces.
     var functionNames = ["instance", "type", "clear"];
+
+
+    // utility function : returns true if a namespace/type exists
+    klon.exists = function(ns){
+        var nodes = ns.split('.');
+        var root = klon.root;
+        
+        if (root == null){
+            return false;
+        }
+
+        for (var i = 0 ; i < nodes.length ; i ++){
+            var node = nodes[i];
+
+            if (!root.hasOwnProperty(node)){
+                return false;
+            }
+
+            root = root[node];
+        }
+        return true;
+    }
+
 
     // gets an instance
     // add optional interface as part of registration contract
@@ -94,32 +141,29 @@ var klon;
     // gets an instance or raw type	
     function get(ns, key, args, inst){
         if (!key){ 
-            if (ns.hasOwnProperty(key)){
-                key = "default";
-            } else {
-                // find first property that is not a reserve function
-                for (var property in ns) {
-                    if (!ns.hasOwnProperty(property)) {
-                        continue;
-                    }
-                    
-                    if(!!~functionNames.indexOf(property)){
-                        continue;
-                    }
+            // if no key given, find first type member that is not a reserved function
+            for (var property in ns) {
+                if (!ns.hasOwnProperty(property)) {
+                    continue;
+                }
+                
+                if(!!~functionNames.indexOf(property)){
+                    continue;
+                }
 
-                    key = property;
-                    break;
-                }                 
-            }
+                key = property;
+                break;
+            }                 
         }       
 
-        if(!ns.hasOwnProperty(key)){
-            throw 'Did not find a registered type ' + key;
+        if(!key || !ns.hasOwnProperty(key)){
+            throw 'Did not find a registered type ' + (key ? key : '(no key given)'); 
         }
 
         if (inst){
             return new ns[key](args);
         }
+
         return ns[key];
     }
 
