@@ -1,5 +1,6 @@
 /*
-    Klon is a javascript library for creating and working with namespaces. It has no dependencies.
+    Klon is a javascript library for creating and working with namespaces, inheritance 
+    and loose coupling in a more traditional object oriented way. It has no dependencies.
     
     Use klon to create a global namespace like window.my.long.foo.bar.namespace from 
     the string "window.my.long.foo.bar.namespace". Klon will also attach a function
@@ -17,16 +18,23 @@
 
     Klon also lets you create an instance without knowing the type
         var myInstance = window.my.long.foo.bar.namespace.instance();
-    
+
     In this way it allows you to achieve some degree of loose coupling, as you can bind
     different types with the same interface to a predetermined namespace, and then get
     an instance back without having to know which concrete type you're getting.
 
+    
+    Klon also adds Underscore-style extend(), but with an added .base member to type instances,
+    allowing you to call all overridden methods regardless of how deep the inheritance chain.
+    this.base.base.base. etc calls also work, with a .base available for each override level.
+
 
     Author : Shukri Adams (shukri.adams@gmail.com), 2013
     Klon is available under the MIT license and can be freely distributed.
-    
+
     http://github.com/shukriadams/klon
+
+    Some parts of Klon are taken from Underscorejs, written by Jeremy Ashkenas (http://underscorejs.org)
 */
 
 // this is the only global variable klon uses.
@@ -69,6 +77,50 @@ var klon;
         return true;
     }
 
+    // Lets a type inherit from another type. Base methods are preserved with an infinite level
+    // of enheritance supported. Use this.base.myMethod() to call base method.
+    // Code is taken entirely from Underscore.js (without official authorization
+    // or permission). Addition of .base by me.
+    // Credit (and appreciation) to Jeremy Ashkenas http://underscorejs.org
+    // Use : newType = klon.extend(newType, baseType, { functions });
+    klon.extend = function(type){
+        if (!type){
+            throw 'Missing type to extend to.';
+        }
+
+        var obj = type.prototype;
+
+        var ArrayProto = Array.prototype;
+        var slice = ArrayProto.slice;      
+        var nativeForEach = ArrayProto.forEach;
+
+        var each = function(obj, iterator, context) {
+            if (obj == null) return;
+            if (nativeForEach && obj.forEach === nativeForEach) {
+                obj.forEach(iterator, context);
+            } else if (obj.length === +obj.length) {
+                for (var i = 0, length = obj.length; i < length; i++) {
+                    if (iterator.call(context, obj[i], i, obj) === breaker) return;
+                }
+            } else {
+                var keys = _.keys(obj);
+                for (var i = 0, length = keys.length; i < length; i++) {
+                    if (iterator.call(context, obj[keys[i]], keys[i], obj) === breaker) return;
+                }
+            }
+        };
+
+        each(slice.call(arguments, 1), function(source) {
+            if (source) {
+                obj.base = obj.base || source.prototype;
+                for (var prop in source) {
+                    obj[prop] = source[prop];
+                }
+            }
+        });
+
+        return type;
+    };
 
     // gets an instance
     // add optional interface as part of registration contract

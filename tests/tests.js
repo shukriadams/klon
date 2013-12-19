@@ -56,6 +56,25 @@ function loadScript(url, callback)
 }
 
 
+test("tests multilevel inheritence", function(){
+    var Base = function(){ };
+    Base.prototype.do = function(){ return "1"; };
+
+    var Level1 = function(){ };
+    Level1 = klon.extend(Level1, Base, {
+        do : function(){ return this.base.do() + "2"; }
+    });
+
+    var Level2 = function(){ };
+    Level2 = klon.extend(Level2, Level1, {
+        do : function(){ return this.base.do() + "3"; }
+    });
+
+    var level2 = new Level2();
+    var out = level2.do();
+    ok(out === "123");
+});
+
 
 test("Tests creating an instance with no registered types", function(){
     try
@@ -69,9 +88,9 @@ test("Tests creating an instance with no registered types", function(){
         var s = window.foo.bar.instance();
         
     }
-    catch(ex)
+    catch(err)
     {
-        ok (ex.indexOf("No types registered") === 0)
+        ok (err && err.indexOf("Did not find a registered type") === 0);
     }   
 });
 
