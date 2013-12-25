@@ -113,6 +113,17 @@ var klon;
         each(slice.call(arguments, 1), function(source) {
             if (source) {
                 obj.base = obj.base || source.prototype;
+                
+                // this fixes properies getting left behind while function are carried forward to overriding types
+                if (obj.base){
+                    for (var prop in obj.base) {
+                        if (prop === "constructor" || prop === "__proto__" || obj.hasOwnProperty(prop)){
+                            continue;
+                        }
+                        obj[prop] = obj.base[prop];
+                    }
+                }
+
                 for (var prop in source) {
                     obj[prop] = source[prop];
                 }

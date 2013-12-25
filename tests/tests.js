@@ -35,9 +35,10 @@ module("Klon tests", {
 });
 
 
-
+// ===========================================================================
 // credits for answer : http://stackoverflow.com/questions/950087/how-to-include-a-javascript-file-in-another-javascript-file
 // todo : replace requirejs with this; modules loaded with require cannot be unloaded, preventing clean teardowns.
+// ---------------------------------------------------------------------------
 function loadScript(url, callback)
 {
     // Adding the script tag to the head as suggested before
@@ -56,7 +57,10 @@ function loadScript(url, callback)
 }
 
 
-test("tests multilevel inheritence", function(){
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
+test("tests multilevel inheritence with functions", function(){
     var Base = function(){ };
     Base.prototype.do = function(){ return "1"; };
 
@@ -76,6 +80,93 @@ test("tests multilevel inheritence", function(){
 });
 
 
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
+test("tests multilevel inheritence with multiple functions", function(){
+    var Base = function(){ };
+    Base.prototype.do = function(){ return "1"; };
+    Base.prototype.undo = function(){ return "3"; };
+
+    var Level1 = function(){ };
+    Level1 = klon.extend(Level1, Base, {
+        do : function(){ return this.base.do() + "2"; },
+        undo : function(){ return this.base.undo() + "2"; }
+    });
+
+    var Level2 = function(){ };
+    Level2 = klon.extend(Level2, Level1, {
+        do : function(){ return this.base.do() + "3"; },
+        undo : function(){ return this.base.undo() + "1"; }
+    });
+
+    var level2 = new Level2();
+    var out = level2.do();
+    var out2 = level2.undo();
+    ok(out === "123");
+    ok(out2 === "321");
+});
+
+
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
+test("tests multilevel inheritence with properties - simple", function(){
+    var Base = function(){ };
+    Base.prototype.text = "abc";
+
+    var Level1 = function(){ };
+    Level1 = klon.extend(Level1, Base, {
+    });
+
+    var level1 = new Level1();
+    var out = level1.text;
+    ok(out === "abc");
+});
+
+
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
+test("tests multilevel inheritence with properties - complex", function(){
+    var Base = function(){ };
+    Base.prototype = function () { this.apply(this, arguments); };
+    Base.prototype.do = function(){ 
+        var t = this.text + "b"; 
+        return t;
+    };
+    Base.prototype.text = "a";
+
+    var Level1 = function(){ };
+    Level1.prototype = function () { this.apply(this, arguments); };
+    Level1 = klon.extend(Level1, Base, {
+        do : function(){ 
+            var t = this.base.do() + this.base.text;
+            return t;
+        }
+    });
+
+    var Level2 = function(){ };
+    Level2.prototype = function () { this.apply(this, arguments); };
+    Level2 = klon.extend(Level2, Level1, {
+        do : function(){ 
+            var t = this.base.do() + this.base.text + this.text;
+            return t;
+        },
+        text : "c"
+
+    });
+
+    var level2 = new Level2();
+    level2.do();
+    var out = level2.do();
+    ok(out === "abaac");
+});
+
+
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 test("Tests creating an instance with no registered types", function(){
     try
     {
@@ -95,7 +186,9 @@ test("Tests creating an instance with no registered types", function(){
 });
 
 
-
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 test("Tests clearing a namespace node of all types", function(){
     throws(function () {
             var type = function(){ };
@@ -111,6 +204,9 @@ test("Tests clearing a namespace node of all types", function(){
 });
 
 
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 test("test function that tests if namespace exists", function(){
     
     // empty namespace
@@ -129,6 +225,9 @@ test("test function that tests if namespace exists", function(){
 });
 
 
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 test("tests instantiation of a type directly from namespace", function(){
 
      // register first type
@@ -141,7 +240,9 @@ test("tests instantiation of a type directly from namespace", function(){
 });
 
 
+// ===========================================================================
 // tests "overload" behaviour of instance
+// ---------------------------------------------------------------------------
 test("tests creating an instance with no key but constructor with args", function(){
      // register first type
     var type = function(args){ 
@@ -156,7 +257,9 @@ test("tests creating an instance with no key but constructor with args", functio
 });
 
 
-
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 test("tests retrieving of type instead of instances", function(){
     // register first type
     var type = function(){  };
@@ -169,7 +272,9 @@ test("tests retrieving of type instead of instances", function(){
 });
 
 
-
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 test( "tests registering items with the same key ", function() {
     
     // register first type
@@ -188,6 +293,9 @@ test( "tests registering items with the same key ", function() {
 });
 
 
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 test("tests clearing of types", function() {
     // register first type
     var type1 = function(){  };
@@ -211,6 +319,9 @@ test("tests clearing of types", function() {
 });
 
 
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 asyncTest("Tests a module that has an internal dependency on a klon namespae", function () {
 
     require(['dependent'], function(){
@@ -224,10 +335,9 @@ asyncTest("Tests a module that has an internal dependency on a klon namespae", f
 });
 
 
-
-/*
-Test fails if run with other tests. Needs proper teardown.
-*/
+// ===========================================================================
+// Test fails if run with other tests. Needs proper teardown.
+// ---------------------------------------------------------------------------
 asyncTest("Tests registering of type without a key", function () {
 
     require(['keyless-type'], function(){
@@ -242,7 +352,9 @@ asyncTest("Tests registering of type without a key", function () {
 });
 
 
-
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 asyncTest("Tests adding an item to klon's own namespace", function () {
 
     require(['klone-child'], function(){
@@ -257,10 +369,9 @@ asyncTest("Tests adding an item to klon's own namespace", function () {
 });
 
 
-
-/*
-Test fails if run with other tests. Needs proper teardown.
-*/
+// ===========================================================================
+// Test fails if run with other tests. Needs proper teardown.
+// ---------------------------------------------------------------------------
 asyncTest("Instantiates default module", function () {
 
     require(['search-google'], function(){
@@ -275,7 +386,9 @@ asyncTest("Instantiates default module", function () {
 });
 
 
-
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 asyncTest("Instantiates a named module", function () {
 
     require(['search-google'], function(){
@@ -290,7 +403,9 @@ asyncTest("Instantiates a named module", function () {
 });
 
 
-
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 asyncTest("Instantiates a named module when modules registered at same namespace node", function () {
 
     require(['search-google', 'search-lucene'], function(){
@@ -304,7 +419,9 @@ asyncTest("Instantiates a named module when modules registered at same namespace
 });
 
 
-
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
 asyncTest("Instantiates two named modules from same namespace node", function () {
 
     require(['search-google', 'search-lucene'], function(){
