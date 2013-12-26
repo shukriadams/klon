@@ -229,7 +229,7 @@ test("Tests creating an instance with no registered types", function(){
         var type = function(){ };
         type.prototype.execute = function(){ };
         
-        klon.register("foo.bar", type, "mytype");   
+        klon.register("foo.bar", "mytype", type);   
         foo.bar.clear();
         
         var s = window.foo.bar.instance();
@@ -250,7 +250,7 @@ test("Tests clearing a namespace node of all types", function(){
             var type = function(){ };
             type.prototype.execute = function(){ };
             
-            klon.register("foo.bar", type, "mytype");   
+            klon.register("foo.bar", "mytype", type);   
             foo.bar.cler();
             
             var s = window.foo.bar.instance();
@@ -273,7 +273,7 @@ test("test function that tests if namespace exists", function(){
     var type = function(){ };
     type.prototype.execute = function(){ return 1; };
 
-    klon.register("foo2.bar2", type, "mytype");   
+    klon.register("foo2.bar2", "mytype", type);   
     ok(klon.exists("foo2.bar2"));
 
     // invalid namespace
@@ -290,7 +290,7 @@ test("tests instantiation of a type directly from namespace", function(){
     var type = function(){ };
     type.prototype.execute = function(){ return 1; };
 
-    klon.register("foo.bar", type, "mytype");   
+    klon.register("foo.bar", "mytype", type);   
     var instance = new foo.bar.mytype();
     ok( instance.execute() === 1);
 });
@@ -307,7 +307,7 @@ test("tests creating an instance with no key but constructor with args", functio
     type.prototype = function () { this.apply(this, arguments); };
     type.prototype.execute = function(){ return this.args.value; };
 
-    klon.register("foo.bar", type, "mytype");   
+    klon.register("foo.bar", "mytype", type);   
     var instance = foo.bar.instance( { value : "test" });
     ok( instance.execute() === "test");
 });
@@ -321,7 +321,7 @@ test("tests retrieving of type instead of instances", function(){
     var type = function(){  };
     type.prototype.execute = function(){  return 1; };
 
-    klon.register("foo.bar", type, "mytype");
+    klon.register("foo.bar", "mytype", type);
     var retrievedType = foo.bar.type();
     var instance = new retrievedType();
     ok( instance.execute() === 1);
@@ -336,12 +336,12 @@ test( "tests registering items with the same key ", function() {
     // register first type
     var type1 = function(){  };
     type1.prototype.execute = function(){  return 1; };
-    klon.register("foo.bar", type1, "mytype");
+    klon.register("foo.bar", "mytype", type1);
 
     // register type 2 on same key
     var type2 = function(){ };
     type2.prototype.execute = function(){ return 2; };
-    klon.register("foo.bar", type2, "mytype");
+    klon.register("foo.bar", "mytype", type2);
 
     // test
     var instance = window.foo.bar.instance("mytype");
@@ -356,12 +356,12 @@ test("tests clearing of types", function() {
     // register first type
     var type1 = function(){  };
     type1.prototype.execute = function(){  return 1; };
-    klon.register("foo.bar", type1, "mytype");
+    klon.register("foo.bar", "mytype", type1);
 
     // register type 2 on same key
     var type2 = function(){ };
     type2.prototype.execute = function(){ return 2; };
-    klon.register("foo.bar", type2, "mytype2");
+    klon.register("foo.bar", "mytype2", type2);
 
     ok(foo.bar.hasOwnProperty("mytype"));
     ok(foo.bar.hasOwnProperty("mytype2"));
@@ -378,7 +378,23 @@ test("tests clearing of types", function() {
 // ===========================================================================
 //
 // ---------------------------------------------------------------------------
-asyncTest("Tests a module that has an internal dependency on a klon namespae", function () {
+test("Tests adding namespace to global object other than window", function () {
+
+    var root = {};
+
+    var type = function(){  };
+    type.prototype.do = function(){ return 1; };
+    klon.register(root, "foo.bar", type);
+
+    var instance = root.foo.bar.instance();
+    ok(instance.do() === 1);
+});
+
+
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
+asyncTest("Tests a module that has an internal dependency on a klon namespace", function () {
 
     require(['dependent'], function(){
         start();

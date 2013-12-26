@@ -9,5 +9,5 @@
         return "lucene results";
     };
 
-    klon.register("foo.bar", type, 'lucene'); 
+    klon.register("foo.bar", 'lucene', type); 
 }());

@@ -9,6 +9,6 @@
 	    return "google results";
 	};
 
-	klon.register("foo.bar", type, 'google');
+	klon.register("foo.bar", 'google', type);
 
 })();

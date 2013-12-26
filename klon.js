@@ -42,7 +42,8 @@ var klon;
 
 (function(){
     
-    'use strict';
+    // had to remove to use "arguments" :(
+    //'use strict';
 
 
     // setup global if it doesn't exist, else state will be reset each time script is read    
@@ -159,10 +160,36 @@ var klon;
 
     // gets an instance
     // add optional interface as part of registration contract
-    klon.register = function (ns, type, key) {
+    klon.register = function () { /*ns, type, key*/ 
+        var ns, type, key, rt;
+        var args = Array.prototype.slice.call(arguments, 0);
+
+        while(args.length > 0){
+            var test = typeof args[0];
+            if (!klon.is(rt) && typeof args[0] === 'object'){
+                rt = args[0]; args.splice(0, 1);
+                continue;
+            }
+            if (!klon.is(ns) && typeof args[0] === 'string'){
+                ns = args[0]; args.splice(0, 1);
+                continue;
+            }
+            if (!klon.is(key) && typeof args[0] === 'string'){
+                key = args[0]; args.splice(0, 1);
+                continue;
+            }
+            if (args.length === 1){
+                type = args[0]; args.splice(0, 1);
+                break;
+            } 
+            args.splice(0, 1);           
+        }
+        
+        rt = rt || klon.root;
+
 
         // setup up and/or get namespace 
-        var namespace = klon.namespace(ns);
+        var namespace = klon.namespace(ns, rt);
 
 
         // Attach "instance" method which returns an instance of the type 
@@ -256,13 +283,12 @@ var klon;
 
 
     // builds an object namespace from a string    
-    klon.namespace = function(ns){
+    klon.namespace = function(ns, rt){
         var nodes = ns.split('.');
         if (nodes.length === 0){
             throw 'Invalid namespace, must contain at least 1 node'
         }
-
-        var root = klon.root;
+        var root = rt;    
         for (var i = 0 ; i < nodes.length ; i ++){
             var node = nodes[i];
             root[node] = root[node] || {};
