@@ -80,6 +80,26 @@ test("tests multilevel inheritence with functions", function(){
 });
 
 
+
+// ===========================================================================
+// Checks klon.is() utility function.
+// ---------------------------------------------------------------------------
+test("tests falsey checking", function(){
+
+    var test = function(variable){
+        return klon.is(variable);
+    }
+
+    ok(test(undefined) === false);
+    ok(test(null) === false);
+    ok(test() === false);
+
+    ok(test(0) === true);
+    ok(test("") === true);
+    ok(test(false) === true);
+});
+
+
 // ===========================================================================
 //
 // ---------------------------------------------------------------------------
@@ -122,6 +142,42 @@ test("tests multilevel inheritence with properties - simple", function(){
     var level1 = new Level1();
     var out = level1.text;
     ok(out === "abc");
+});
+
+
+// ===========================================================================
+//
+// ---------------------------------------------------------------------------
+test("tests persistent property value throughout inheritence stack", function(){
+    var Base = function(){ };
+    Base.prototype = function () { this.apply(this, arguments); };
+    Base.prototype.text = "abc";
+    Base.prototype.passup = function(){
+        return this.text;
+    };
+
+    var Level1 = function(){ };
+    klon.extend(Level1, Base, {
+        passup : function(){
+            return this.text + this.base.passup();
+        }
+    });
+
+    for (var prop in level1) {
+        var test = source[prop];
+    }
+
+    var level1 = new Level1();
+    level1.text = "edf";
+
+    var base = new Base();
+    for (var prop in base) {
+        var test = base[prop];
+        var test2 = test;
+    }
+
+    var out = level1.passup();
+    ok(out === "edfedf");
 });
 
 

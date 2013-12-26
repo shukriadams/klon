@@ -44,6 +44,7 @@ var klon;
     
     'use strict';
 
+
     // setup global if it doesn't exist, else state will be reset each time script is read    
     if (klon == null){
         klon = {};
@@ -61,7 +62,7 @@ var klon;
         var nodes = ns.split('.');
         var root = klon.root;
         
-        if (root == null){
+        if (root === null){
             return false;
         }
 
@@ -75,10 +76,21 @@ var klon;
             root = root[node];
         }
         return true;
-    }
+    };
 
+
+    // utility function : returns true if variable is neither undefined nor null
+    klon.is = function(variable){
+        if (typeof(variable) === 'undefined' || variable === null)
+            return false;
+        return true;
+    };
+
+
+    // WARNING : does not work for property state in overridden classes. Use at own risk. If 
+    // this cannot be fixed, method will be removed.
     // Lets a type inherit from another type. Base methods are preserved with an infinite level
-    // of enheritance supported. Use this.base.myMethod() to call base method.
+    // of inheritance supported. Use this.base.myMethod() to call base method.
     // Code is taken entirely from Underscore.js (without official authorization
     // or permission). Addition of .base by me.
     // Credit (and appreciation) to Jeremy Ashkenas http://underscorejs.org
@@ -111,19 +123,30 @@ var klon;
         };
 
         each(slice.call(arguments, 1), function(source) {
+            
             if (source) {
-                obj.base = obj.base || source.prototype;
+                var sourceIsFunction = source.toString().indexOf("function") === 0;
+    
+                if (sourceIsFunction)
+                {
+                    obj.base = obj.base || source.prototype;
                 
-                // this fixes properies getting left behind while function are carried forward to overriding types
-                if (obj.base){
-                    for (var prop in obj.base) {
-                        if (prop === "constructor" || prop === "__proto__" || obj.hasOwnProperty(prop)){
-                            continue;
+                
+                    // this fixes properties getting left behind while function are carried forward to overriding types
+                    if (obj.base){
+                        for (var prop in obj.base) {
+                            if (prop === "constructor" || prop === "__proto__" || obj.hasOwnProperty(prop)){
+                                continue;
+                            }
+                            // do not transfer functions.
+                            if (obj.base[prop].toString().indexOf("function") === 0)
+                                continue;
+
+                            obj[prop] = obj.base[prop];
                         }
-                        obj[prop] = obj.base[prop];
                     }
                 }
-
+                
                 for (var prop in source) {
                     obj[prop] = source[prop];
                 }
@@ -132,6 +155,7 @@ var klon;
 
         return type;
     };
+
 
     // gets an instance
     // add optional interface as part of registration contract
