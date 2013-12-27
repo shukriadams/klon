@@ -88,6 +88,42 @@ var klon;
     };
 
 
+    // calls base method in underyling class. Can be stacked. Currently works for types
+    // extended with underscore.
+    // usage : klon.base(this, "basemethodname", yourArg1, yourArg2 ...)
+    // caveats : injects a "__depthX" argument into base call, so if you have an argument with
+    // the same name it might break
+    klon.base = function(context, method){
+        function getdepth(theirArgs){
+            var args = Array.prototype.slice.call(theirArgs, 0);
+            var i = 0;
+            while(true){
+                if(!(!!~args.indexOf("__depth" + i))){
+                    break;
+                }
+                i ++;
+                if (i == 100) // emergency
+                    break;
+            }
+            return "__depth" + i;
+        }
+
+        var calldepth = getdepth(arguments.callee.caller.arguments);
+        var depth  = calldepth.substring(7);
+        depth = parseInt(depth) + 1;
+        var root = context["__proto__"];
+        for (var i = 0 ; i < depth ; i ++){
+            root = root["__proto__"]
+        }
+
+        if (root.hasOwnProperty(method)){
+            var args = Array.prototype.slice.call(arguments, 2);
+            args.push(calldepth);
+            root[method].apply(context, args);
+        }
+    };
+
+
     // WARNING : does not work for property state in overridden classes. Use at own risk. If 
     // this cannot be fixed, method will be removed.
     // Lets a type inherit from another type. Base methods are preserved with an infinite level
@@ -241,7 +277,15 @@ var klon;
         // attach property to namespace, either at key, use name "default"
         if (type){
             if (!key){
-                key = "default";
+                var i = 0;
+                for(var property in namespace){
+                    key = "_default" + i == 0 ? "" : i;    
+                    if (!namespace.hasOwnProperty(key)) {
+                        break;
+                    }
+                    i++;
+                }
+                
             }
 
             namespace[key] = type;
@@ -255,8 +299,12 @@ var klon;
     // gets an instance or raw type	
     function get(ns, key, args, inst){
         if (!key){ 
-            // if no key given, find first type member that is not a reserved function
-            for (var property in ns) {
+            
+            // if no key given, find last type member that is not a reserved function
+            var properties = Object.keys(ns);
+
+            for (var i = 0 ; i < properties.length ; i ++){
+                var property = properties[properties.length - 1 - i];
                 if (!ns.hasOwnProperty(property)) {
                     continue;
                 }
