@@ -23,18 +23,11 @@
     different types with the same interface to a predetermined namespace, and then get
     an instance back without having to know which concrete type you're getting.
 
-    
-    Klon also adds Underscore-style extend(), but with an added .base member to type instances,
-    allowing you to call all overridden methods regardless of how deep the inheritance chain.
-    this.base.base.base. etc calls also work, with a .base available for each override level.
-
 
     Author : Shukri Adams (shukri.adams@gmail.com), 2013
     Klon is available under the MIT license and can be freely distributed.
 
     http://github.com/shukriadams/klon
-
-    Some parts of Klon are taken from Underscorejs, written by Jeremy Ashkenas (http://underscorejs.org)
 */
 
 // this is the only global variable klon uses.
@@ -95,12 +88,12 @@ var klon;
     };
 
 
-    // calls base method in underyling class. Can be stacked. Currently works for types
+    // Calls base method in underyling class. Can be stacked. Currently works for types
     // extended with underscore.
     // usage : klon.base(this, "basemethodname", yourArg1, yourArg2 ...)
-    // caveats : injects a "__depthX" argument into base call, so if you have an argument with
-    // the same name it might break
-    klon.base = function(context, method){
+    // caveats : 
+    // Injects a "__depthX" argument into base call, so if you have an argument with the same name it might break
+    klon.base = function(context, method, theirArgs){
         function getdepth(theirArgs){
             var args = Array.prototype.slice.call(theirArgs, 0);
             var i = 0;
@@ -115,7 +108,7 @@ var klon;
             return "__depth" + i;
         }
 
-        var calldepth = getdepth(arguments.callee.caller.arguments);
+        var calldepth = getdepth(theirArgs);
         var depth  = calldepth.substring(7);
         depth = parseInt(depth) + 1;
         var root = context["__proto__"];
@@ -124,80 +117,10 @@ var klon;
         }
 
         if (root.hasOwnProperty(method)){
-            var args = Array.prototype.slice.call(arguments, 2);
+            var args = Array.prototype.slice.call(arguments, 3);
             args.push(calldepth);
             root[method].apply(context, args);
         }
-    };
-
-
-    // WARNING : does not work for property state in overridden classes. Use at own risk. If 
-    // this cannot be fixed, method will be removed.
-    // Lets a type inherit from another type. Base methods are preserved with an infinite level
-    // of inheritance supported. Use this.base.myMethod() to call base method.
-    // Code is taken entirely from Underscore.js (without official authorization
-    // or permission). Addition of .base by me.
-    // Credit (and appreciation) to Jeremy Ashkenas http://underscorejs.org
-    // Use : newType = klon.extend(newType, baseType, { functions });
-    klon.extend = function(type){
-        if (!type){
-            throw 'Missing type to extend to.';
-        }
-
-        var obj = type.prototype;
-
-        var ArrayProto = Array.prototype;
-        var slice = ArrayProto.slice;      
-        var nativeForEach = ArrayProto.forEach;
-
-        var each = function(obj, iterator, context) {
-            if (obj == null) return;
-            if (nativeForEach && obj.forEach === nativeForEach) {
-                obj.forEach(iterator, context);
-            } else if (obj.length === +obj.length) {
-                for (var i = 0, length = obj.length; i < length; i++) {
-                    if (iterator.call(context, obj[i], i, obj) === breaker) return;
-                }
-            } else {
-                var keys = _.keys(obj);
-                for (var i = 0, length = keys.length; i < length; i++) {
-                    if (iterator.call(context, obj[keys[i]], keys[i], obj) === breaker) return;
-                }
-            }
-        };
-
-        each(slice.call(arguments, 1), function(source) {
-            
-            if (source) {
-                var sourceIsFunction = source.toString().indexOf("function") === 0;
-    
-                if (sourceIsFunction)
-                {
-                    obj.base = obj.base || source.prototype;
-                
-                
-                    // this fixes properties getting left behind while function are carried forward to overriding types
-                    if (obj.base){
-                        for (var prop in obj.base) {
-                            if (prop === "constructor" || prop === "__proto__" || obj.hasOwnProperty(prop)){
-                                continue;
-                            }
-                            // do not transfer functions.
-                            if (obj.base[prop].toString().indexOf("function") === 0)
-                                continue;
-
-                            obj[prop] = obj.base[prop];
-                        }
-                    }
-                }
-                
-                for (var prop in source) {
-                    obj[prop] = source[prop];
-                }
-            }
-        });
-
-        return type;
     };
 
 
