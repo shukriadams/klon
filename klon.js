@@ -58,7 +58,7 @@ var klon;
     var functionNames = ["instance", "type", "clear"];
 
 
-    // utility function : returns true if a namespace/type exists
+    // utility function : returns true if a namespace has been set up by Klon.
     klon.exists = function(ns){
         var nodes = ns.split('.');
         var root = klon.root;
@@ -75,6 +75,13 @@ var klon;
             }
 
             root = root[node];
+        }
+
+        // check for klon functions.
+        for (var i = 0 ; i < functionNames.length ; i ++){
+            if (!root.hasOwnProperty(functionNames[i])){
+                return false;
+            }
         }
         return true;
     };

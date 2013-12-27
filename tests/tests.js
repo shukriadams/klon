@@ -278,6 +278,11 @@ test("test function that tests if namespace exists", function(){
 
     // invalid namespace
     ok(!klon.exists("foo3.bar3"));
+
+    // manually created namespace
+    window.fooshizzle = {};
+    window.fooshizzle.nizzle = {};
+    ok(!klon.exists("fooshizzle.nizzle"));    
 });
 
 
