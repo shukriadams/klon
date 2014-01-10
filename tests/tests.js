@@ -1,8 +1,6 @@
 module("Klon tests", {
     setup: function () {
-        var urlargs ="bust=" + (new Date()).getTime(); 
         require.config({
-            //urlArgs: urlargs,
             paths: {
                 'klon': '../klon',
                 'search-google': 'searchGoogle',
@@ -10,7 +8,7 @@ module("Klon tests", {
                 'klone-child': 'klon.child',
                 'keyless-type': 'keyless.type',
                 'dependent': 'dependent',
-                'dependonme': 'dependonme',
+                'dependonme': 'dependonme'
             },
             shim : {
                 'klon-loader' : ['klon'],
@@ -19,7 +17,7 @@ module("Klon tests", {
                 'klone-child' : ['klon'],
                 'keyless-type' : ['klon'],
                 'dependonme' : ['klon'],
-                'dependent' : ['dependonme', 'klon'],
+                'dependent' : ['dependonme', 'klon']
             }
         });
 
@@ -29,7 +27,6 @@ module("Klon tests", {
     },
 
     teardown: function () {
-        //alert("teardown");
         requirejs.undef();
     }
 });
@@ -56,6 +53,45 @@ function loadScript(url, callback)
     head.appendChild(script);
 }
 
+test("simple protoype inheritence test", function(){
+
+    // create a base type, register it with a fixed key
+    var Base = function(){
+        this.name = "";
+    };
+    Base.prototype.Say = function(){ return this.name; };
+    klon.register("fool.bear", "Base", Base);
+
+    // make sure it works
+    var base = new window.fool.bear.Base();
+    base.name = "123";
+    ok(base.Say() ==="123");
+
+    //override it from its fixed key, store without key
+    var Override1 = new function(){};
+    Override1.prototype = new window.fool.bear.Base()
+    Override1.prototype.constructor = Override1;
+    klon.register("fool.bear", Override1);
+
+    // ensure the override works
+    var override1 = window.fool.bear.instance();
+    override1.name= "321";
+    ok(override1.Say() ==="321");
+
+    //override the base again, store without key
+    var Override2 = new function(){};
+    Override2.prototype = new window.fool.bear.Base()
+    Override2.prototype.constructor = Override2;
+    klon.register("fool.bear", Base);
+
+    // ensure the new override also works
+    var override2 = window.fool.bear.instance();
+    override2.name= "321";
+    ok(override2.Say() ==="321");
+
+    // 
+
+});
 
 // ===========================================================================
 // Checks klon.is() utility function.

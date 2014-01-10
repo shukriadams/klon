@@ -35,9 +35,7 @@ var klon;
 
 (function(){
     
-    // had to remove to use "arguments" :(
-    //'use strict';
-
+    'use strict';
 
     // setup global if it doesn't exist, else state will be reset each time script is read    
     if (klon == null){
