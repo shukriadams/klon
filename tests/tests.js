@@ -155,7 +155,7 @@ test("Tests clearing a namespace node of all types", function(){
 // ===========================================================================
 //
 // ---------------------------------------------------------------------------
-test("test function that tests if namespace exists", function(){
+test("test function that checks if namespace exists", function(){
     
     // empty namespace
     klon.register("foo.bar");   
@@ -272,20 +272,6 @@ test("tests clearing of types", function() {
 });
 
 
-// ===========================================================================
-//
-// ---------------------------------------------------------------------------
-test("Tests adding namespace to global object other than window", function () {
-
-    var root = {};
-
-    var type = function(){  };
-    type.prototype.do = function(){ return 1; };
-    klon.register(root, "foo.bar", type);
-
-    var instance = root.foo.bar.instance();
-    ok(instance.do() === 1);
-});
 
 
 // ===========================================================================

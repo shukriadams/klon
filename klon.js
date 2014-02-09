@@ -124,33 +124,21 @@ var klon;
 
     // gets an instance
     // add optional interface as part of registration contract
-    klon.register = function () { /*ns, type, key*/ 
+    klon.register = function () { /*ns, key, type. Key is optional */ 
         var ns, type, key, rt;
         var args = Array.prototype.slice.call(arguments, 0);
-
-        while(args.length > 0){
-            var test = typeof args[0];
-            if (!klon.is(rt) && typeof args[0] === 'object'){
-                rt = args[0]; args.splice(0, 1);
-                continue;
-            }
-            if (!klon.is(ns) && typeof args[0] === 'string'){
-                ns = args[0]; args.splice(0, 1);
-                continue;
-            }
-            if (!klon.is(key) && typeof args[0] === 'string'){
-                key = args[0]; args.splice(0, 1);
-                continue;
-            }
-            if (args.length === 1){
-                type = args[0]; args.splice(0, 1);
-                break;
-            } 
-            args.splice(0, 1);           
+        if (args.length == 3){
+            ns = args[0]; 
+            key = args[1]; 
+            type = args[2]; 
+        } else if (args.length == 2){
+            ns = args[0]; 
+            type = args[1]; 
+        } else if (args.length == 1){
+            ns = args[0]; 
         }
         
-        rt = rt || klon.root;
-
+        rt = klon.root;
 
         // setup up and/or get namespace 
         var namespace = klon.namespace(ns, rt);
@@ -163,7 +151,6 @@ var klon;
         // args : optional constructor args for instance.
         if (!namespace.instance){
             namespace.instance = function instance (key, args){
-                // "overload"
                 if (!args && typeof key === 'object' ){
                     args = key;
                     key = null;
@@ -181,7 +168,6 @@ var klon;
                 return get(namespace, key, null, false);
             }
         }
-
         
 
         // clears all types at the node.
