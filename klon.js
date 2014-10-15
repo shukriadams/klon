@@ -105,6 +105,10 @@ var klon;
             }
             return "__depth" + i;
         }
+        
+        if (theirArgs === null || theirArgs === undefined){
+            theirArgs = [];
+        }
 
         var calldepth = getdepth(theirArgs);
         var depth  = calldepth.substring(7);
